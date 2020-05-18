@@ -1,0 +1,85 @@
+<html>
+<head>
+<link href="css/reset.css" rel="stylesheet" type="text/css">
+<link href="css/style.css" rel="stylesheet" type="text/css">
+<title>Albums</title>
+</head>
+<body>
+<div id="container">
+	<div class="header">
+    	<h1>My Album</h1>
+    </div>
+    <div class="content">
+    	<div class="content_head">
+    	<h2>Albums</h2>
+        <h5><a href="create_album.php">+ Create Album</a></h5>
+        </div>
+        <div id="album_wrapper">
+        <?php
+                $con=mysqli_connect("localhost","root","","multiple_uploads");
+                    // Check connection
+                    if (mysqli_connect_errno())
+                      {
+                      echo "Failed to connect to MySQL: " . mysqli_connect_error();
+                      }
+                $result = mysqli_query($con, "SELECT * FROM folders");
+                while($row = mysqli_fetch_array($result)){
+				$title = $row['title'];
+				$id = $row['id'];
+				echo "<div class='folder_holder' id=". $id .">";
+				echo "<a href='photos.php?title=".$title."'><div class='folder_holder_img' id='folder_".$id."'>";
+						
+						$result_p = mysqli_query($con, "SELECT * FROM images WHERE title = '$title'");
+						$rowno=mysqli_num_rows($result_p);
+						for ($i=1; $i < mysqli_num_rows($result_p); $i++){
+							$row_p = mysqli_fetch_array($result_p);
+								echo "<img id='". $i . "' src='". $row_p['url'] ."' width='200' height='200'>";	
+						}
+				echo "</div></a>";
+                echo "<h3><a href='photos.php?title=".$title."'>".$title."</a></h3>"; 
+				echo "<h4>".$rowno." photos</h4>";
+            	echo "</div>";
+				}
+        ?>
+        </div>
+	</div>
+</div>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#folder_"+id+">img#1").fadeIn(200);
+	});
+sliderint=1;
+sliderNext=2;
+
+function startSlider(id){
+	count=$("#folder_"+id+">img").size();
+	
+	loop = setInterval(function(){
+		
+		if(sliderNext>count){
+			sliderNext=1;
+			sliderint=1;
+		}
+		
+		$("#folder_"+id+">img").fadeOut(100);
+		$("#folder_"+id+">img#"+sliderNext).fadeIn(200);
+		
+		sliderint=sliderNext;
+		sliderNext=sliderNext+1;
+		},2000)
+}
+function stopLoop(){
+	window.clearInterval(loop);
+}
+$('.folder_holder').hover(
+	function(){
+		var id = ($(this).attr('id'));
+		startSlider(id);
+	},function(){
+		stopLoop();
+	}
+);
+</script>
+</body>
+</html>
